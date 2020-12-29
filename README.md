@@ -110,6 +110,17 @@ address 10.151.71.82
 netmask 255.255.255.248
 gateway 10.151.71.81
 ```
+### MOJOKERTO (DHCP Server)
+```
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+address 10.151.71.83
+netmask 255.255.255.248
+gateway 10.151.71.81
+```
 ### MADIUN (Web Server)
 ```
 auto lo
@@ -156,8 +167,14 @@ ip route add 192.168.4.0/23 via 192.168.5.2
 ip route add 192.168.0.0/22 via 192.168.2.2
 ```
 ## D. DHCP
-Edit `/etc/default/isc-dhcp-server` pada DHCP Server (MOJOKERTO) tambahkan interface `eth0` untuk INTERFACESv4.
-Edit pada `/etc/dhcp/dhcpd.conf` dengan konfigurasi sebagai  berikut:
+Lakukan `apt-get update` dan `apt-get install isc-dhcp-server` pada UML MOJOKERTO.
+
+Sementara pada UML KEDIRI dan BATU, lakukan `apt-get update` dan `apt-get install isc-dhcp-relay`
+
+Untuk kedua DHCP Relay setting untuk mendengarkan DHCP Server diberikan IP MOJOKERTO yaitu 10.151.71.83.
+
+Edit `/etc/default/isc-dhcp-server` pada DHCP Server (MOJOKERTO) tambahkan interface `eth0` untuk INTERFACESv4. Kemudian edit pada `/etc/dhcp/dhcpd.conf` dengan konfigurasi sebagai  berikut:
+
 ```
 subnet 10.151.71.80 netmask 255.255.255.248 {
 }
@@ -182,8 +199,11 @@ subnet 192.168.0.0 netmask 255.255.255.0 {
 	max-lease-time 600;
 }
 ```
-Lakukan DHCP restart dengan `service isc-dhcp-server`
+Lakukan DHCP restart dengan `service isc-dhcp-server restart`
+
 Lakukan `service networking restart` pada UML GRESIK dan Sidoarjo
+
+Setelahnya seharusnya pada GRESIK dan SIDOARJO akan mendapatkan IP dinamis sesuai range subnet mereka masing-masing yang diberikan oleh DHCP Server (MOJOKERTO). Untuk mengecek IP yang didapatkan oleh kedua klien adalah dengan syntax `ip a`.
 
 ## SOAL
 
