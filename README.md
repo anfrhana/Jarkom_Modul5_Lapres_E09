@@ -1,7 +1,7 @@
 # Jarkom_Modul5_Lapres_E09
 ## Melakukan pembagian IP dengan metode CIDR
 * Subneting
-<img width="501" alt="subnet cidr" src="https://user-images.githubusercontent.com/61228737/103260134-1d167100-49cf-11eb-9889-7c7ca8da0932.png">
+<img width="800" alt="subnet cidr" src="https://user-images.githubusercontent.com/61228737/103260134-1d167100-49cf-11eb-9889-7c7ca8da0932.png">
 
 * Tree
 ![image](https://user-images.githubusercontent.com/61223768/103257994-11727c80-49c6-11eb-8955-2f24e82bd36c.png)
@@ -191,8 +191,10 @@ Lakukan `service networking restart` pada UML GRESIK dan Sidoarjo
 Ditambahkan perintah iptables sebagai berikut di SURABAYA:
 `iptables -t nat -A POSTROUTING -s 192.168.0.0/16 -o eth0 -j SNAT --to-source 10.151.70.42`
 * Testing
-1. Lakukan ping di seluruh UML
+1. Lakukan ping its.ac.id di seluruh UML
 2. Apabila hasilnya adalah sebagai berikut, maka konfigurasi berhasil
+
+<img width="960" alt="no 1" src="https://user-images.githubusercontent.com/61228737/103267413-09c1d080-49e4-11eb-96c8-106bd951b1d7.png">
 
 **2. Kalian diminta untuk mendrop semua akses SSH dari luar Topologi (UML) Kalian pada server yang memiliki ip DMZ (DHCP dan DNS SERVER) pada SURABAYA demi menjaga keamanan**
 Ditambahkan perintah iptables sebagai berikut di SURABAYA:
@@ -207,6 +209,8 @@ iptables -A LOGGING -j DROP
 3. Ketikkan sesuatu
 4. Apabila hasilnya seperti dibawah, maka konfigurasi berhasil
 
+<img width="960" alt="no 2" src="https://user-images.githubusercontent.com/61228737/103267417-0c242a80-49e4-11eb-8932-1577cb2d1ab3.png">
+
 **3. Karena tim kalian maksimal terdiri dari 3 orang, Bibah meminta kalian untuk membatasi DHCP dan DNS server hanya boleh menerima maksimal 3 koneksi ICMP secara bersamaan yang berasal dari mana saja menggunakan iptables pada masing masing server, selebihnya akan di DROP**
 Ditambahkan perintah iptables sebagai berikut di MALANG (DNS Server) dan MOJOKERTO (DHCP Server):
 ```
@@ -219,7 +223,12 @@ iptables -A LOGGING -j DROP
 1. Lakukan ping ke IP MALANG atau IP MOJOKERTO di 4 UML
 2. Apabila hasilnya seperti dibawah, maka konfigurasi berhasil
 
-**4-5. kemudian kalian diminta untuk membatasi akses ke MALANG yang berasal dari SUBNET SIDOARJO dan SUBNET GRESIK dengan peraturan sebagai berikut: Akses dari subnet SIDOARJO hanya diperbolehkan pada pukul 07.00 - 17.00 pada hari Senin sampai Jumat5. Akses dari subnet GRESIK hanya diperbolehkan pada pukul 17.00 hingga pukul 07.00 setiap harinya**
+<img width="960" alt="no 3" src="https://user-images.githubusercontent.com/61228737/103267419-0e868480-49e4-11eb-9254-c901ca5049c9.png">
+<img width="960" alt="no 3 - 2" src="https://user-images.githubusercontent.com/61228737/103267422-10504800-49e4-11eb-8ab2-0573fed1c17e.png">
+
+**4-5. kemudian kalian diminta untuk membatasi akses ke MALANG yang berasal dari SUBNET SIDOARJO dan SUBNET GRESIK dengan peraturan sebagai berikut: Akses dari subnet SIDOARJO hanya diperbolehkan pada pukul 07.00 - 17.00 pada hari Senin sampai Jumat. Akses dari subnet GRESIK hanya diperbolehkan pada pukul 17.00 hingga pukul 07.00 setiap harinya**
+
+Pada UML MALANG tambahkan perintah iptables sebagai berikut:
 ```
 #No 4
 iptables -A INPUT -s 192.168.4.0/24 -m time --timestart 07:00 --timestop 17:00 --weekdays Mon,Tue,Wed,Thu,Fri -j ACCEPT
@@ -230,11 +239,25 @@ iptables -A INPUT -s 192.168.4.0/24 -m time --timestart 07:00 --timestop 17:00 -
 iptables -A INPUT -s 192.168.0.0/24 -m time --timestart 07:01 --timestop 16:59 -j REJECT
 
 ```
-* Testing
-1. Ubah tanggal dan jam hari ini dengan perintah date -s '2020-12-29 08:00:00' (sesuaikan dengan soal)
-2. Cek tanggal sudah benar atau belum dengan perintah date
-3. Lakukan ping IP MALANG pada UML GRESIK dan SIDOARJO
-4. Apabila hasilnya seperti dibawah, maka konfigurasi berhasil
+* Testing no 4
+1. Ubah tanggal dan jam hari ini dengan perintah date -s '2020-12-29 08:00:00'
+2. Lakukan ping IP MALANG pada UML SIDOARJO
+3. Ubah tanggal dan jam hari ini dengan perintah date -s '2020-12-29 20:00:00'
+4. Lakukan ping IP MALANG pada UML SIDOARJO
+5. Apabila hasilnya seperti dibawah, maka konfigurasi berhasil
+
+<img width="796" alt="no 4 - 1" src="https://user-images.githubusercontent.com/61228737/103267429-13e3cf00-49e4-11eb-989f-bf9c961f0307.png">
+<img width="771" alt="no 4 - 2" src="https://user-images.githubusercontent.com/61228737/103267433-15ad9280-49e4-11eb-91df-0ad71175445e.png">
+
+* Testing no 5
+1. Ubah tanggal dan jam hari ini dengan perintah date -s '2020-12-29 08:00:00'
+2. Lakukan ping IP MALANG pada UML GRESIK
+3. Ubah tanggal dan jam hari ini dengan perintah date -s '2020-12-29 20:00:00'
+4. Lakukan ping IP MALANG pada UML GRESIK
+5. Apabila hasilnya seperti dibawah, maka konfigurasi berhasil
+
+<img width="780" alt="no 5 a" src="https://user-images.githubusercontent.com/61228737/103267435-180fec80-49e4-11eb-805f-bb9238e4c965.png">
+<img width="786" alt="no 5 b" src="https://user-images.githubusercontent.com/61228737/103267442-19d9b000-49e4-11eb-9101-9e20dbe96299.png">
 
 **6. SURABAYA disetting sehingga setiap request dari client yang mengakses DNS Server akan didistribusikan secara bergantian pada PROBOLINGGO port 80 dan MADIUN port 80**
 ```
@@ -242,10 +265,12 @@ iptables -A PREROUTING -t nat -d 10.151.71.82 -p tcp --dport 80 -m statistic --m
 iptables -A PREROUTING -t nat -d 10.151.71.82 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.3:80
 ```
 * Testing
-1. Pada PUTTY, ketikkan nc 10.151.71.82 22
-2. Pada UML MADIUN dan PROBOLINGGO, ketikkan perintah nc -l -p 22
+1. Pada PUTTY, ketikkan nc 10.151.71.82 80
+2. Pada UML MADIUN dan PROBOLINGGO, ketikkan perintah nc -l -p 80
 3. Ketikkan sesuatu
 4. Apabila hasilnya seperti dibawah, maka konfigurasi berhasil
+
+<img width="960" alt="no 6" src="https://user-images.githubusercontent.com/61228737/103267444-1c3c0a00-49e4-11eb-893d-4138aea78c71.png">
 
 **7. Bibah ingin agar semua paket didrop oleh firewall (dalam topologi) tercatat dalam log pada setiap UML yang memiliki aturan drop**
 Pada UML SURABAYA
@@ -265,3 +290,7 @@ iptables -A LOGGING -j DROP
 ```
 * Testing
 1. Jalankan iptables
+2. Pada UML MALANG, MOJOKERTO, SURABAYA, ketikkan perintah `tail -f /var/log/kern.log`
+3. Hasil log-nya seperti  berikut
+
+<img width="960" alt="no 7" src="https://user-images.githubusercontent.com/61228737/103267450-1e9e6400-49e4-11eb-9556-ad0c11ac2f20.png">
