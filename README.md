@@ -1,6 +1,8 @@
 # Jarkom_Modul5_Lapres_E09
 ## Melakukan pembagian IP dengan metode CIDR
 * Subneting
+<img width="501" alt="subnet cidr" src="https://user-images.githubusercontent.com/61228737/103260134-1d167100-49cf-11eb-9889-7c7ca8da0932.png">
+
 * Tree
 ![image](https://user-images.githubusercontent.com/61223768/103257994-11727c80-49c6-11eb-8955-2f24e82bd36c.png)
 
@@ -16,7 +18,7 @@ uml_switch -unix switch5 > /dev/null < /dev/null &
 uml_switch -unix switch6 > /dev/null < /dev/null &
 
 # Router
-xterm -T SURABAYA -e linux ubd0=SURABAYA,jarkom umid=SURABAYA eth0=tuntap,,,10.151.78.33 eth1=daemon,,,switch5 eth2=daemon,,,switch3 mem=96M &
+xterm -T SURABAYA -e linux ubd0=SURABAYA,jarkom umid=SURABAYA eth0=tuntap,,,10.151.70.41 eth1=daemon,,,switch5 eth2=daemon,,,switch3 mem=96M &
 xterm -T KEDIRI -e linux ubd0=KEDIRI,jarkom umid=KEDIRI eth0=daemon,,,switch1 eth1=daemon,,,switch6 eth2=daemon,,,switch5  mem=96M &
 xterm -T BATU -e linux ubd0=BATU,jarkom umid=BATU eth0=daemon,,,switch3 eth1=daemon,,,switch4 eth2=daemon,,,switch2  mem=96M &
 
@@ -41,9 +43,9 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet static
-address 10.151.78.34
+address 10.151.70.42
 netmask 255.255.255.252
-gateway 10.151.78.33
+gateway 10.151.70.41
 
 auto eth1
 iface eth1 inet static
@@ -73,7 +75,7 @@ netmask 255.255.255.0
 
 auto eth2
 iface eth2 inet static
-address 10.151.79.65
+address 10.151.71.81
 netmask 255.255.255.248
 ```
 ### KEDIRI (Router dan DHCP Relay)
@@ -83,9 +85,9 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet static
-address 10.151.78.34
+address 10.151.70.42
 netmask 255.255.255.252
-gateway 10.151.78.33
+gateway 10.151.70.41
 
 auto eth1
 iface eth1 inet static
@@ -104,9 +106,9 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet static
-address 10.151.79.66
+address 10.151.71.82
 netmask 255.255.255.248
-gateway 10.151.79.65
+gateway 10.151.71.81
 ```
 ### MADIUN (Web Server)
 ```
@@ -149,22 +151,23 @@ iface eth0 inet dhcp
 ## C. Routing
 Melakukan setting pada UML SURABAYA
 ```
-route add -net 10.151.79.64 netmask 255.255.255.248 gw 192.168.5.2
-route add -net 192.168.4.0 netmask 255.255.254.0 gw 192.168.5.2
-route add -net 192.168.0.0 netmask 255.255.252.0 gw 192.168.2.2
+ip route add 10.151.71.80/29 via 192.168.5.2
+ip route add 192.168.4.0/23 via 192.168.5.2
+ip route add 192.168.0.0/22 via 192.168.2.2
 ```
 ## D. DHCP
 Edit `/etc/default/isc-dhcp-server` pada DHCP Server (MOJOKERTO) tambahkan interface `eth0` untuk INTERFACESv4.
 Edit pada `/etc/dhcp/dhcpd.conf` dengan konfigurasi sebagai  berikut:
 ```
-subnet 10.151.79.65 netmask 255.255.255.248 {
+subnet 10.151.71.80 netmask 255.255.255.248 {
 }
 
 subnet 192.168.4.0 netmask 255.255.255.0 {
 	range 192.168.4.2 192.168.4.254;
 	option routers 192.168.4.1;
 	option broadcast-address 192.168.4.255;
-	option domain-name-servers 10.151.79.66;
+	option domain-name-servers 10.151.71.82;
+	option domain-name-servers 202.46.129.2;
 	default-lease-time 600;
 	max-lease-time 600;
 }
@@ -173,7 +176,8 @@ subnet 192.168.0.0 netmask 255.255.255.0 {
 	range 192.168.0.2 192.168.0.254;
 	option routers 192.168.0.1;
 	option broadcast-address 192.168.0.255;
-	option domain-name-servers 10.151.79.66;
+	option domain-name-servers 10.151.71.82;
+	option domain-name-servers 202.46.129.2;
 	default-lease-time 600;
 	max-lease-time 600;
 }
@@ -185,7 +189,7 @@ Lakukan `service networking restart` pada UML GRESIK dan Sidoarjo
 
 **1.  Agar topologi yang kalian buat dapat mengakses keluar, kalian diminta untuk mengkonfigurasi SURABAYA menggunakan iptables, namun Bibah tidak ingin kalian menggunakan MASQUERADE**
 Ditambahkan perintah iptables sebagai berikut di SURABAYA:
-`iptables -t nat -A POSTROUTING -s 192.168.0.0/16 -o eth0 -j SNAT --to-source 10.151.78.34`
+`iptables -t nat -A POSTROUTING -s 192.168.0.0/16 -o eth0 -j SNAT --to-source 10.151.70.42`
 * Testing
 1. Lakukan ping di seluruh UML
 2. Apabila hasilnya adalah sebagai berikut, maka konfigurasi berhasil
@@ -193,7 +197,7 @@ Ditambahkan perintah iptables sebagai berikut di SURABAYA:
 **2. Kalian diminta untuk mendrop semua akses SSH dari luar Topologi (UML) Kalian pada server yang memiliki ip DMZ (DHCP dan DNS SERVER) pada SURABAYA demi menjaga keamanan**
 Ditambahkan perintah iptables sebagai berikut di SURABAYA:
 ```iptables -N LOGGING
-iptables -A FORWARD -p tcp --dport 22 -d 10.151.79.64/29 -i eth0 -j LOGGING
+iptables -A FORWARD -p tcp --dport 22 -d 10.151.71.80/29 -i eth0 -j LOGGING
 iptables -A LOGGING -m limit --limit 5/min -j LOG --log-prefix "iptables_FORWARD_denied: " --log-level 7
 iptables -A LOGGING -j DROP
 ```
